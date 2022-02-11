@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import GridLayout from "react-grid-layout";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
+import "./dark.css";
 
 interface DashboardWidget {
     name: string;
@@ -55,7 +56,7 @@ const App = () => {
                                     style={{
                                         height: "100%",
                                         width: "100%",
-                                        borderColor: "black",
+                                        borderColor: "var(--widget-border)",
                                         borderWidth: 2,
                                         borderRadius: 10,
                                         borderStyle: "solid",
@@ -72,7 +73,13 @@ const App = () => {
                                     >
                                         {widget.name}
                                     </h3>
-                                    <hr />
+                                    <hr
+                                        style={{
+                                            width: "calc(100% - 2px)",
+                                            borderColor: "var(--widget-border)",
+                                            margin: 0,
+                                        }}
+                                    />
                                     <div
                                         style={{
                                             display: "flex",
@@ -80,9 +87,15 @@ const App = () => {
                                         }}
                                     >
                                         <div
-                                            style={{ margin: "auto" }}
+                                            style={{
+                                                display: "flex",
+                                                justifyContent: "center",
+                                                margin: "auto",
+                                                width: "100%",
+                                                height: "100%",
+                                            }}
                                             dangerouslySetInnerHTML={{
-                                                __html: `<${widget.type} ${widget.attributes} style="max-width: 100%; max-height: 100%;"></${widget.type}>`,
+                                                __html: `<${widget.type} ${widget.attributes} style="width: calc(100% - 10px); height: calc(100% - 10px);"></${widget.type}>`,
                                             }}
                                         />
                                     </div>

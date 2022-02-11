@@ -69,12 +69,6 @@ const createWindow = (): void => {
                             filters: [{ name: "JSON", extensions: ["json"] }],
                         });
                         if (file.filePaths) {
-                            console.log(
-                                `window.setSchema(\`${readFileSync(
-                                    file.filePaths[0]
-                                ).toString()}\`)`
-                            );
-
                             mainWindow.webContents.executeJavaScript(
                                 `window.setSchema(\`${readFileSync(
                                     file.filePaths[0]
