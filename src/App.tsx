@@ -12,10 +12,12 @@ interface DashboardWidget {
     w: number;
     h: number;
     static: boolean;
+    attributes: string;
 }
 
 interface DashboardTab {
     name: string;
+    columns: number;
     widgets: DashboardWidget[];
 }
 
@@ -45,7 +47,7 @@ const App = () => {
 
             {schema.tabs.map((tab) => (
                 <TabPanel>
-                    <GridLayout cols={4} rowHeight={89} width={800}>
+                    <GridLayout cols={tab.columns} rowHeight={116} width={1600}>
                         {tab.widgets.map((widget) => {
                             return (
                                 <div
@@ -62,14 +64,14 @@ const App = () => {
                                     }}
                                     data-grid={widget}
                                 >
-                                    <h1
+                                    <h3
                                         style={{
                                             textAlign: "center",
                                             margin: 5,
                                         }}
                                     >
                                         {widget.name}
-                                    </h1>
+                                    </h3>
                                     <hr />
                                     <div
                                         style={{
@@ -80,7 +82,7 @@ const App = () => {
                                         <div
                                             style={{ margin: "auto" }}
                                             dangerouslySetInnerHTML={{
-                                                __html: `<${widget.type} style="max-width: 100%; max-height: 100%;"></${widget.type}>`,
+                                                __html: `<${widget.type} ${widget.attributes} style="max-width: 100%; max-height: 100%;"></${widget.type}>`,
                                             }}
                                         />
                                     </div>

@@ -14,30 +14,39 @@ if (require("electron-squirrel-startup")) {
     app.quit();
 }
 
+const accelerator = (key: string) => {
+    return platform === "darwin" ? "Cmd+" + key : "Ctrl+" + key;
+};
+
 const createWindow = (): void => {
     // Create the browser window.
     const mainWindow = new BrowserWindow({
-        height: 600,
-        width: 800,
+        width: 1920,
+        height: 880,
     });
 
     // and load the index.html of the app.
     mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
-    // Open the DevTools.
     mainWindow.webContents.openDevTools();
 
     const menu = Menu.buildFromTemplate([
         {
             label: "Dashboard",
-            submenu: [{ label: "Exit", accelerator: "Cmd+Q", click: app.quit }],
+            submenu: [
+                {
+                    label: "Exit",
+                    accelerator: accelerator("Q"),
+                    click: app.quit,
+                },
+            ],
         },
         {
             label: "File",
             submenu: [
                 {
                     label: "Save",
-                    accelerator: "Cmd+S",
+                    accelerator: accelerator("S"),
                     async click() {
                         const file = await dialog.showSaveDialog({
                             filters: [{ name: "JSON", extensions: ["json"] }],
@@ -54,7 +63,7 @@ const createWindow = (): void => {
                 },
                 {
                     label: "Open",
-                    accelerator: "Cmd+O",
+                    accelerator: accelerator("O"),
                     async click() {
                         const file = await dialog.showOpenDialog({
                             filters: [{ name: "JSON", extensions: ["json"] }],
