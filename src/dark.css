@@ -16,3 +16,14 @@ body {
     background-color: #111;
     color: white;
 }
+
+.widget-title {
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+    background-color: #222;
+}
+
+.react-resizable-handle::after {
+    border-color: #ffffffff !important;
+    border-bottom-right-radius: 3px;
+}
