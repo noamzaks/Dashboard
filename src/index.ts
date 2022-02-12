@@ -83,6 +83,32 @@ const createWindow = () => {
             },
         })
     )
+    menu.insert(
+        2,
+        new MenuItem({
+            label: "Tab",
+            submenu: [
+                {
+                    label: "Lock",
+                    accelerator: accelerator("L"),
+                    click() {
+                        mainWindow.webContents.executeJavaScript(
+                            "window.tabLock()"
+                        )
+                    },
+                },
+                {
+                    label: "Unlock",
+                    accelerator: accelerator("Shift+L"),
+                    click() {
+                        mainWindow.webContents.executeJavaScript(
+                            "window.tabUnlock()"
+                        )
+                    },
+                },
+            ],
+        })
+    )
     Menu.setApplicationMenu(menu)
 
     return mainWindow

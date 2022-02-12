@@ -14,7 +14,7 @@ interface DashboardWidget {
     y: number
     w: number
     h: number
-    static: boolean
+    sourceKey: string
     attributes: string
 }
 
@@ -28,17 +28,101 @@ interface DashboardSchema {
     tabs: DashboardTab[]
 }
 
+interface WidgetSelector {
+    tabIndex: number
+    widgetIndex: number
+}
+
+const Widget: React.FC<{ widget: DashboardWidget; onClick?: () => void }> = ({
+    widget,
+    onClick,
+}) => {
+    return (
+        <div
+            onClick={onClick}
+            style={{
+                height: "calc(100% - 20px)",
+                width: "calc(100% - 20px)",
+                margin: 10,
+                borderColor: "var(--widget-border)",
+                borderWidth: 2,
+                borderRadius: 10,
+                borderStyle: "solid",
+                display: "flex",
+                flexDirection: "column",
+            }}
+        >
+            <div className="widget-title">
+                <h2
+                    style={{
+                        textAlign: "center",
+                        userSelect: "none",
+                        margin: 5,
+                        outline: "none",
+                    }}
+                >
+                    {widget.name}
+                </h2>
+            </div>
+            <hr
+                style={{
+                    width: "calc(100% - 2px)",
+                    borderColor: "var(--widget-border)",
+                    margin: 0,
+                }}
+            />
+            <div
+                style={{
+                    display: "flex",
+                    overflow: "hidden",
+                    flexGrow: 1,
+                }}
+            >
+                <div
+                    style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        textAlign: "center",
+                        margin: "auto",
+                        backgroundColor: "white",
+                        color: "black",
+                        borderBottomRightRadius: 5,
+                        borderBottomLeftRadius: 5,
+                        width: "100%",
+                        height: "100%",
+                    }}
+                    dangerouslySetInnerHTML={{
+                        __html: `<${widget.type} ${widget.attributes} ${
+                            widget.sourceKey && widget.sourceKey.length > 0
+                                ? "source-key='" + widget.sourceKey + "'"
+                                : ""
+                        } style="width: calc(100% - 10px); height: calc(100% - 10px);"></${
+                            widget.type
+                        }>`,
+                    }}
+                />
+            </div>
+        </div>
+    )
+}
+
 const App = () => {
-    const [tabIndex, setTabIndex] = useState(0)
     const [schema, setSchema] = useState<DashboardSchema>({
         tabs: [],
     })
+    const [lock, setLock] = useState(false)
+    const [currentWidget, setCurrentWidget] = useState<WidgetSelector>()
 
     useEffect(() => {
         // @ts-ignore
         window.setSchema = (schema: string) => setSchema(JSON.parse(schema))
         // @ts-ignore
         window.getSchema = () => JSON.stringify(schema, null, 4)
+        // @ts-ignore
+        window.tabLock = () => setLock(true)
+        // @ts-ignore
+        window.tabUnlock = () => setLock(false)
     })
 
     const setLayouts = (tabIndex: number, layouts: Layout[]) => {
@@ -70,156 +154,258 @@ const App = () => {
         })
     }
 
-    const updateWidgetTitle = (
-        tabName: string,
-        widgetName: string,
-        event: KeyboardEvent | FormEvent
-    ) => {
-        const name = (event.currentTarget as HTMLHeadingElement).textContent
-        setSchema((schema) => {
-            return {
-                tabs: schema.tabs.map((tab) => {
-                    if (tab.name !== tabName) {
-                        return tab
-                    }
-
-                    return {
-                        ...tab,
-                        widgets: tab.widgets.map((widget) => {
-                            if (widget.name !== widgetName) {
-                                return widget
-                            }
-
-                            return {
-                                ...widget,
-                                name,
-                            }
-                        }),
-                    }
-                }),
-            }
-        })
-    }
-
     return (
-        <Tabs onSelect={(index) => setTabIndex(index)}>
-            <TabList>
-                {schema.tabs.map((tab) => (
-                    <Tab key={tab.name}>{tab.name}</Tab>
-                ))}
-            </TabList>
+        <div
+            style={{
+                display: "flex",
+                flexDirection: "row",
+                height: "100vh",
+            }}
+        >
+            {!lock && (
+                <div
+                    style={{
+                        width: "250px",
+                        marginRight: 10,
+                        backgroundColor: "lightgrey",
+                        color: "black",
+                        textAlign: "center",
+                    }}
+                >
+                    <h3>Widget Editor</h3>
+                    {currentWidget && (
+                        <>
+                            <p>Title</p>
+                            <input
+                                type="text"
+                                value={
+                                    schema.tabs[currentWidget.tabIndex].widgets[
+                                        currentWidget.widgetIndex
+                                    ].name
+                                }
+                                onChange={(e) => {
+                                    setSchema((schema) => {
+                                        schema.tabs[
+                                            currentWidget.tabIndex
+                                        ].widgets[
+                                            currentWidget.widgetIndex
+                                        ].name = e.target.value
+                                        return { ...schema }
+                                    })
+                                }}
+                            />
+                            <p>Type</p>
+                            <select
+                                value={
+                                    schema.tabs[currentWidget.tabIndex].widgets[
+                                        currentWidget.widgetIndex
+                                    ].type
+                                }
+                                onChange={(e) => {
+                                    setSchema((schema) => {
+                                        schema.tabs[
+                                            currentWidget.tabIndex
+                                        ].widgets[
+                                            currentWidget.widgetIndex
+                                        ].type = e.target.value
+                                        return { ...schema }
+                                    })
+                                }}
+                            >
+                                <option value="frc-gauge">Gauge</option>
+                                <option value="frc-line-chart">
+                                    Line Chart
+                                </option>
+                                <option value="frc-3-axis-accelerometer">
+                                    3-Axis Accelerometer
+                                </option>
+                                <option value="frc-accelerometer">
+                                    Accelerometer
+                                </option>
+                                <option value="frc-basic-fms-info">
+                                    Basic FMS Info
+                                </option>
+                                <option value="frc-basic-subsystem">
+                                    Basic Subsystem
+                                </option>
+                                <option value="frc-differential-drivebase">
+                                    Differential Drivebase
+                                </option>
+                                <option value="frc-encoder">Encoder</option>
+                                <option value="frc-gyro">Gyro</option>
+                                <option value="frc-mecanum-drivebase">
+                                    Mecanum Drivebase
+                                </option>
+                                <option value="frc-model-viewer">
+                                    Model Viewer
+                                </option>
+                                <option value="frc-networktable-tree">
+                                    NetworkTable Tree
+                                </option>
+                                <option value="frc-power-distribution-panel">
+                                    Power Distribution Panel
+                                </option>
+                                <option value="frc-relay">Relay</option>
+                                <option value="frc-voltage-view">
+                                    Voltage View
+                                </option>
+                                <option value="frc-boolean-box">
+                                    Boolean Box
+                                </option>
+                                <option value="frc-label">Label</option>
+                                <option value="frc-number-bar">
+                                    Number Bar
+                                </option>
+                                <option value="frc-checkbox">Checkbox</option>
+                                <option value="frc-checkbox-group">
+                                    Checkbox Group
+                                </option>
+                                <option value="frc-combo-box">Combo Box</option>
+                                <option value="frc-number-field">
+                                    Number Field
+                                </option>
+                                <option value="frc-number-slider">
+                                    Number Slider
+                                </option>
+                                <option value="frc-radio-button">
+                                    Radio Button
+                                </option>
+                                <option value="frc-radio-group">
+                                    Radio Group
+                                </option>
+                                <option value="frc-text-area">Text Area</option>
+                                <option value="frc-text-view">Text View</option>
+                                <option value="frc-toggle-button">
+                                    Toggle Button
+                                </option>
+                                <option value="frc-toggle-switch">
+                                    Toggle Switch
+                                </option>
+                                <option value="frc-camera">Camera</option>
+                                <option value="frc-field">Field</option>
+                            </select>
+                            <p>Source Key</p>
+                            <input
+                                type="text"
+                                value={
+                                    schema.tabs[currentWidget.tabIndex].widgets[
+                                        currentWidget.widgetIndex
+                                    ].sourceKey
+                                }
+                                style={{ width: "calc(100% - 15px)" }}
+                                onChange={(e) => {
+                                    setSchema((schema) => {
+                                        schema.tabs[
+                                            currentWidget.tabIndex
+                                        ].widgets[
+                                            currentWidget.widgetIndex
+                                        ].sourceKey = e.target.value
+                                        return { ...schema }
+                                    })
+                                }}
+                            />
+                            <p>Attributes</p>
+                            <input
+                                type="text"
+                                value={
+                                    schema.tabs[currentWidget.tabIndex].widgets[
+                                        currentWidget.widgetIndex
+                                    ].attributes
+                                }
+                                style={{ width: "calc(100% - 15px)" }}
+                                onChange={(e) => {
+                                    setSchema((schema) => {
+                                        schema.tabs[
+                                            currentWidget.tabIndex
+                                        ].widgets[
+                                            currentWidget.widgetIndex
+                                        ].sourceKey = e.target.value
+                                        return { ...schema }
+                                    })
+                                }}
+                            />
+                            <div
+                                draggable={true}
+                                unselectable="on"
+                                // this is a hack for firefox
+                                // Firefox requires some kind of initialization
+                                // which we can do by adding this attribute
+                                // @see https://bugzilla.mozilla.org/show_bug.cgi?id=568313
+                                onDragStart={(e) =>
+                                    e.dataTransfer.setData("text/plain", "")
+                                }
+                            >
+                                <Widget
+                                    widget={{
+                                        name: "New",
+                                        type: "frc-text-field",
+                                        x: 0,
+                                        y: 0,
+                                        w: 1,
+                                        h: 1,
+                                        sourceKey: "",
+                                        attributes: "",
+                                    }}
+                                />
+                            </div>
+                        </>
+                    )}
+                </div>
+            )}
+            <div style={{ flexGrow: 1 }}>
+                <Tabs>
+                    <TabList>
+                        {schema.tabs.map((tab) => (
+                            <Tab key={tab.name}>{tab.name}</Tab>
+                        ))}
+                    </TabList>
 
-            {schema.tabs.map((tab, index) => (
-                <TabPanel key={tab.name}>
-                    <GridLayout
-                        cols={tab.columns}
-                        rowHeight={116}
-                        maxRows={6}
-                        width={1600}
-                        onLayoutChange={(layouts) => setLayouts(index, layouts)}
-                        verticalCompact={false}
-                        preventCollision={true}
-                    >
-                        {tab.widgets.map((widget) => {
-                            return (
-                                <div
-                                    key={widget.name}
-                                    data-grid={{
-                                        i: widget.name,
+                    {schema.tabs.map((tab, tabIndex) => (
+                        <TabPanel key={tab.name}>
+                            <GridLayout
+                                cols={tab.columns}
+                                rowHeight={116}
+                                maxRows={6}
+                                width={1600}
+                                layout={schema.tabs[tabIndex].widgets.map(
+                                    (widget, widgetIndex) => ({
+                                        i: widgetIndex.toString(),
                                         x: widget.x,
                                         y: widget.y,
                                         h: widget.h,
                                         w: widget.w,
-                                        static: widget.static,
-                                    }}
-                                >
-                                    <div
-                                        style={{
-                                            height: "calc(100% - 20px)",
-                                            width: "calc(100% - 20px)",
-                                            margin: 10,
-                                            borderColor: "var(--widget-border)",
-                                            borderWidth: 2,
-                                            borderRadius: 10,
-                                            borderStyle: "solid",
-                                            display: "flex",
-                                            flexDirection: "column",
-                                        }}
-                                    >
-                                        <div className="widget-title">
-                                            <h2
-                                                contentEditable
-                                                onKeyPress={(event) => {
-                                                    if (event.key === "Enter") {
-                                                        event.preventDefault()
-                                                        updateWidgetTitle(
-                                                            tab.name,
-                                                            widget.name,
-                                                            event
-                                                        )
-                                                    }
-                                                }}
-                                                onKeyDown={(event) => {
-                                                    const name = (
-                                                        event.target as HTMLHeadingElement
-                                                    ).textContent
-                                                    if (
-                                                        event.key ===
-                                                            "Backspace" &&
-                                                        name.length === 1
-                                                    ) {
-                                                        event.preventDefault()
-                                                    }
-                                                }}
-                                                style={{
-                                                    textAlign: "center",
-                                                    margin: 5,
-                                                    outline: "none",
-                                                }}
-                                            >
-                                                {widget.name}
-                                            </h2>
-                                        </div>
-                                        <hr
-                                            style={{
-                                                width: "calc(100% - 2px)",
-                                                borderColor:
-                                                    "var(--widget-border)",
-                                                margin: 0,
-                                            }}
-                                        />
-                                        <div
-                                            style={{
-                                                display: "flex",
-                                                overflow: "hidden",
-                                                flexGrow: 1,
-                                            }}
-                                        >
-                                            <div
-                                                style={{
-                                                    display: "flex",
-                                                    justifyContent: "center",
-                                                    margin: "auto",
-                                                    backgroundColor: "white",
-                                                    color: "black",
-                                                    borderBottomRightRadius: 5,
-                                                    borderBottomLeftRadius: 5,
-                                                    width: "100%",
-                                                    height: "100%",
-                                                }}
-                                                dangerouslySetInnerHTML={{
-                                                    __html: `<${widget.type} ${widget.attributes} style="width: calc(100% - 10px); height: calc(100% - 10px);"></${widget.type}>`,
-                                                }}
+                                    })
+                                )}
+                                onLayoutChange={(layouts) =>
+                                    setLayouts(tabIndex, layouts)
+                                }
+                                compactType={null}
+                                preventCollision={true}
+                                isResizable={!lock}
+                                isDraggable={!lock}
+                                isDroppable={true}
+                            >
+                                {tab.widgets.map((widget, widgetIndex) => {
+                                    return (
+                                        <div key={widgetIndex.toString()}>
+                                            <Widget
+                                                widget={widget}
+                                                onClick={() =>
+                                                    setCurrentWidget({
+                                                        tabIndex,
+                                                        widgetIndex,
+                                                    })
+                                                }
                                             />
                                         </div>
-                                    </div>
-                                </div>
-                            )
-                        })}
-                    </GridLayout>
-                </TabPanel>
-            ))}
-        </Tabs>
+                                    )
+                                })}
+                            </GridLayout>
+                        </TabPanel>
+                    ))}
+                </Tabs>
+            </div>
+        </div>
     )
 }
 
