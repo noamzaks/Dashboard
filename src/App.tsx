@@ -33,13 +33,9 @@ interface WidgetSelector {
     widgetIndex: number
 }
 
-const Widget: React.FC<{ widget: DashboardWidget; onClick?: () => void }> = ({
-    widget,
-    onClick,
-}) => {
+const Widget: React.FC<{ widget: DashboardWidget }> = ({ widget }) => {
     return (
         <div
-            onClick={onClick}
             style={{
                 height: "calc(100% - 20px)",
                 width: "calc(100% - 20px)",
@@ -283,6 +279,12 @@ const App = () => {
                                 </option>
                                 <option value="frc-camera">Camera</option>
                                 <option value="frc-field">Field</option>
+                                <option value="frc-networktables-connection">
+                                    NetworkTables Connection
+                                </option>
+                                <option value="frc-code-editor">
+                                    Code Editor
+                                </option>
                             </select>
                             <p>Source Key</p>
                             <input
@@ -387,16 +389,27 @@ const App = () => {
                             >
                                 {tab.widgets.map((widget, widgetIndex) => {
                                     return (
-                                        <div key={widgetIndex.toString()}>
-                                            <Widget
-                                                widget={widget}
-                                                onClick={() =>
-                                                    setCurrentWidget({
-                                                        tabIndex,
-                                                        widgetIndex,
-                                                    })
-                                                }
-                                            />
+                                        <div
+                                            key={widgetIndex.toString()}
+                                            style={{
+                                                width: "100%",
+                                                height: "100%",
+                                            }}
+                                            onClick={() =>
+                                                setCurrentWidget({
+                                                    tabIndex,
+                                                    widgetIndex,
+                                                })
+                                            }
+                                        >
+                                            <div
+                                                style={{
+                                                    width: "100%",
+                                                    height: "100%",
+                                                }}
+                                            >
+                                                <Widget widget={widget} />
+                                            </div>
                                         </div>
                                     )
                                 })}

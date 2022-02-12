@@ -5,6 +5,22 @@
         <title>Dashboard</title>
     </head>
     <body style="margin: 0">
-        <frc-dashboard id="root"></frc-dashboard>
+        <frc-dashboard id="root" onload="ntLoaded()"></frc-dashboard>
     </body>
+    <script>
+        const ntLoaded = () => {
+            NetworkTables.addGlobalListener((key, value, isNew) => {
+                if (key === "/SmartDashboard/Field/Orientation") {
+                    const orientation =
+                        value === "Right" ? 90 : value === "Left" ? -90 : 0
+                    Array.from(
+                        document.getElementsByTagName("frc-field")
+                    ).forEach((element) => {
+                        // TODO: fix this scale magic number
+                        element.parentElement.style.transform = `rotate(${orientation}deg) scale(1.75)`
+                    })
+                }
+            }, true)
+        }
+    </script>
 </html>
