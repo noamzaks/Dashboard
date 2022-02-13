@@ -39,6 +39,11 @@ const createWindow = () => {
     // and load the index.html of the app.
     mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY)
 
+    dialog.showMessageBox(mainWindow, {
+        message: "Yair Ha Gever",
+        buttons: ["Yes", "Definitely"],
+    })
+
     const menu = Menu.getApplicationMenu()
     const fileMenuIndex = platform === "darwin" ? 1 : 0
     menu.items[fileMenuIndex].submenu.insert(
