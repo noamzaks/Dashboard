@@ -16,6 +16,7 @@ interface DashboardWidget {
     h: number
     sourceKey: string
     attributes: string
+    [element: string]: any
 }
 
 interface DashboardTab {
@@ -39,7 +40,7 @@ const Widget: React.FC<{ widget: DashboardWidget }> = ({ widget }) => {
             style={{
                 height: "calc(100% - 20px)",
                 width: "calc(100% - 20px)",
-                margin: 10,
+                margin: 5,
                 borderColor: "var(--widget-border)",
                 borderWidth: 2,
                 borderRadius: 10,
@@ -49,7 +50,7 @@ const Widget: React.FC<{ widget: DashboardWidget }> = ({ widget }) => {
             }}
         >
             <div className="widget-title">
-                <h2
+                <h3
                     style={{
                         textAlign: "center",
                         userSelect: "none",
@@ -58,7 +59,7 @@ const Widget: React.FC<{ widget: DashboardWidget }> = ({ widget }) => {
                     }}
                 >
                     {widget.name}
-                </h2>
+                </h3>
             </div>
             <hr
                 style={{
@@ -121,7 +122,11 @@ const App = () => {
         window.tabUnlock = () => setLock(false)
     })
 
-    const setLayouts = (tabIndex: number, layouts: Layout[]) => {
+    const setLayouts = (
+        tabIndex: number,
+        layouts: Layout[],
+        toAdd: DashboardWidget[] = []
+    ) => {
         setSchema((schema) => {
             return {
                 tabs: schema.tabs.map((tab, index) => {
@@ -135,15 +140,18 @@ const App = () => {
                         const index = widgets.findIndex(
                             (widget) => widget.name === layout.i
                         )
-                        widgets[index] = {
-                            ...widgets[index],
-                            ...layout,
+
+                        if (index !== -1) {
+                            widgets[index] = {
+                                ...widgets[index],
+                                ...layout,
+                            }
                         }
                     }
 
                     return {
                         ...tab,
-                        widgets: widgets,
+                        widgets: widgets.concat(toAdd),
                     }
                 }),
             }
@@ -161,14 +169,49 @@ const App = () => {
             {!lock && (
                 <div
                     style={{
-                        width: "250px",
+                        display: "flex",
+                        flexDirection: "column",
+                        width: 240,
+                        paddingRight: 5,
+                        paddingLeft: 5,
                         marginRight: 10,
                         backgroundColor: "lightgrey",
                         color: "black",
                         textAlign: "center",
                     }}
                 >
-                    <h3>Widget Editor</h3>
+                    <h1>Editor</h1>
+                    <div
+                        className="droppable-element"
+                        draggable={true}
+                        unselectable="on"
+                        // this is a hack for firefox
+                        // Firefox requires some kind of initialization
+                        // which we can do by adding this attribute
+                        // @see https://bugzilla.mozilla.org/show_bug.cgi?id=568313
+                        onDragStart={(e) =>
+                            e.dataTransfer.setData("text/plain", "")
+                        }
+                        style={{
+                            color: "white",
+                            width: 116,
+                            marginRight: "auto",
+                            marginLeft: "auto",
+                        }}
+                    >
+                        <Widget
+                            widget={{
+                                name: "New",
+                                type: "frc-text-field",
+                                x: 0,
+                                y: 0,
+                                w: 1,
+                                h: 1,
+                                sourceKey: "",
+                                attributes: "",
+                            }}
+                        />
+                    </div>
                     {currentWidget && (
                         <>
                             <p>Title</p>
@@ -269,6 +312,9 @@ const App = () => {
                                 <option value="frc-radio-group">
                                     Radio Group
                                 </option>
+                                <option value="frc-text-field">
+                                    Text Field
+                                </option>
                                 <option value="frc-text-area">Text Area</option>
                                 <option value="frc-text-view">Text View</option>
                                 <option value="frc-toggle-button">
@@ -321,35 +367,11 @@ const App = () => {
                                             currentWidget.tabIndex
                                         ].widgets[
                                             currentWidget.widgetIndex
-                                        ].sourceKey = e.target.value
+                                        ].attributes = e.target.value
                                         return { ...schema }
                                     })
                                 }}
                             />
-                            <div
-                                draggable={true}
-                                unselectable="on"
-                                // this is a hack for firefox
-                                // Firefox requires some kind of initialization
-                                // which we can do by adding this attribute
-                                // @see https://bugzilla.mozilla.org/show_bug.cgi?id=568313
-                                onDragStart={(e) =>
-                                    e.dataTransfer.setData("text/plain", "")
-                                }
-                            >
-                                <Widget
-                                    widget={{
-                                        name: "New",
-                                        type: "frc-text-field",
-                                        x: 0,
-                                        y: 0,
-                                        w: 1,
-                                        h: 1,
-                                        sourceKey: "",
-                                        attributes: "",
-                                    }}
-                                />
-                            </div>
                         </>
                     )}
                 </div>
@@ -381,6 +403,19 @@ const App = () => {
                                 onLayoutChange={(layouts) =>
                                     setLayouts(tabIndex, layouts)
                                 }
+                                onDrop={(layouts, item, e) => {
+                                    setLayouts(tabIndex, layouts, [
+                                        {
+                                            ...item,
+                                            i: schema.tabs[tabIndex].widgets
+                                                .length,
+                                            name: "New",
+                                            type: "frc-text-field",
+                                            sourceKey: "",
+                                            attributes: "",
+                                        },
+                                    ])
+                                }}
                                 compactType={null}
                                 preventCollision={true}
                                 isResizable={!lock}

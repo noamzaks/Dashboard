@@ -40,7 +40,8 @@ const createWindow = () => {
     mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY)
 
     const menu = Menu.getApplicationMenu()
-    menu.items[1].submenu.insert(
+    const fileMenuIndex = platform === "darwin" ? 1 : 0
+    menu.items[fileMenuIndex].submenu.insert(
         0,
         new MenuItem({
             label: "Open",
@@ -55,7 +56,7 @@ const createWindow = () => {
             },
         })
     )
-    menu.items[1].submenu.insert(
+    menu.items[fileMenuIndex].submenu.insert(
         1,
         new MenuItem({
             label: "Save",
@@ -67,7 +68,7 @@ const createWindow = () => {
             },
         })
     )
-    menu.items[1].submenu.insert(
+    menu.items[fileMenuIndex].submenu.insert(
         2,
         new MenuItem({
             label: "Save As",
@@ -84,7 +85,7 @@ const createWindow = () => {
         })
     )
     menu.insert(
-        2,
+        fileMenuIndex + 1,
         new MenuItem({
             label: "Tab",
             submenu: [
