@@ -16,6 +16,7 @@ interface DashboardWidget {
     h: number
     sourceKey: string
     attributes: string
+    innerHTML?: string
     [element: string]: any
 }
 
@@ -94,7 +95,7 @@ const Widget: React.FC<{ widget: DashboardWidget }> = ({ widget }) => {
                             widget.sourceKey && widget.sourceKey.length > 0
                                 ? "source-key='" + widget.sourceKey + "'"
                                 : ""
-                        } style="width: calc(100% - 10px); height: calc(100% - 10px);"></${
+                        } style="width: calc(100% - 10px); height: calc(100% - 10px);">${widget.innerHTML ?? ''}</${
                             widget.type
                         }>`,
                     }}

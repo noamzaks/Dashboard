@@ -175,19 +175,30 @@ switch (platform) {
         break
 }
 
-try {
+const pynetworktables2jsExes = ["pynetworktables2js", "py -m pynetworktables2js", "python3 -m pynetworktables2js"]
+let index = 0
+const trySummonPynetworktables2js = () => {
+    if (index >= pynetworktables2jsExes.length) {
+        return
+    }
+    
     exec(cmd, (err, stdout, stderr) => {
         if (stdout.toLowerCase().indexOf(query.toLowerCase()) == -1) {
-            pynetworktables2jsProcess = spawn("pynetworktables2js", [], {
+            pynetworktables2jsProcess = spawn(pynetworktables2jsExes[index] + " --team 1574", [], {
                 detached: true,
                 stdio: ["ignore", "ignore", "ignore"],
+                windowsHide: true
+            })
+            pynetworktables2jsProcess.on("error", () => {
+                console.log("Couldn't start " + pynetworktables2jsExes[index])
+                index++
+                trySummonPynetworktables2js()
             })
             pynetworktables2jsProcess.unref()
         }
     })
-} catch (e) {
-    console.log(e)
 }
+trySummonPynetworktables2js()
 
 app.addListener("before-quit", () => {
     if (pynetworktables2jsProcess) {
