@@ -95,9 +95,9 @@ const Widget: React.FC<{ widget: DashboardWidget }> = ({ widget }) => {
                             widget.sourceKey && widget.sourceKey.length > 0
                                 ? "source-key='" + widget.sourceKey + "'"
                                 : ""
-                        } style="width: calc(100% - 10px); height: calc(100% - 10px);">${widget.innerHTML ?? ''}</${
-                            widget.type
-                        }>`,
+                        } style="width: calc(100% - 10px); height: calc(100% - 10px);">${
+                            widget.innerHTML ?? ""
+                        }</${widget.type}>`,
                     }}
                 />
             </div>
@@ -109,7 +109,7 @@ const App = () => {
     const [schema, setSchema] = useState<DashboardSchema>({
         tabs: [],
     })
-    const [lock, setLock] = useState(false)
+    const [lock, setLock] = useState(true)
     const [currentWidget, setCurrentWidget] = useState<WidgetSelector>()
 
     useEffect(() => {
@@ -389,9 +389,9 @@ const App = () => {
                         <TabPanel key={tab.name}>
                             <GridLayout
                                 cols={tab.columns}
-                                rowHeight={116}
+                                rowHeight={123}
                                 maxRows={6}
-                                width={1600}
+                                width={1735}
                                 layout={schema.tabs[tabIndex].widgets.map(
                                     (widget, widgetIndex) => ({
                                         i: widgetIndex.toString(),
