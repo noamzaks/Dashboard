@@ -181,7 +181,7 @@ const trySummonPynetworktables2js = () => {
     if (index >= pynetworktables2jsExes.length) {
         return
     }
-    
+
     exec(cmd, (err, stdout, stderr) => {
         if (stdout.toLowerCase().indexOf(query.toLowerCase()) == -1) {
             pynetworktables2jsProcess = spawn(pynetworktables2jsExes[index] + " --team 1574", [], {
@@ -198,7 +198,7 @@ const trySummonPynetworktables2js = () => {
         }
     })
 }
-trySummonPynetworktables2js()
+// trySummonPynetworktables2js()
 
 app.addListener("before-quit", () => {
     if (pynetworktables2jsProcess) {
