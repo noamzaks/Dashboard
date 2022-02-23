@@ -92,10 +92,10 @@ const Widget: React.FC<{ widget: DashboardWidget }> = ({ widget }) => {
                     }}
                     dangerouslySetInnerHTML={{
                         __html: `<${widget.type} ${widget.attributes} ${widget.sourceKey && widget.sourceKey.length > 0
-                            ? "source-key='" + widget.sourceKey + "'"
-                            : ""
-                            } style="width: calc(100% - 10px); height: calc(100% - 10px);">${widget.innerHTML ?? ''}</${widget.type
-                            }>`,
+                                ? "source-key='" + widget.sourceKey + "'"
+                                : ""
+                            } style="width: calc(100% - 10px); height: calc(100% - 10px);">${widget.innerHTML ?? ""
+                            }</${widget.type}>`,
                     }}
                 />
             </div>
@@ -107,7 +107,7 @@ const App = () => {
     const [schema, setSchema] = useState<DashboardSchema>({
         tabs: [],
     })
-    const [lock, setLock] = useState(false)
+    const [lock, setLock] = useState(true)
     const [currentWidget, setCurrentWidget] = useState<WidgetSelector>()
 
     useEffect(() => {

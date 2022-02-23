@@ -26,5 +26,5 @@
  * ```
  */
 
-import "./App";
-import "@frc-web-components/frc-web-components";
+import "./App"
+import "@frc-web-components/frc-web-components"
