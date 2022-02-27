@@ -92,8 +92,8 @@ const Widget: React.FC<{ widget: DashboardWidget }> = ({ widget }) => {
                     }}
                     dangerouslySetInnerHTML={{
                         __html: `<${widget.type} ${widget.attributes} ${widget.sourceKey && widget.sourceKey.length > 0
-                                ? "source-key='" + widget.sourceKey + "'"
-                                : ""
+                            ? "source-key='" + widget.sourceKey + "'"
+                            : ""
                             } style="width: calc(100% - 10px); height: calc(100% - 10px);">${widget.innerHTML ?? ""
                             }</${widget.type}>`,
                     }}
@@ -387,9 +387,9 @@ const App = () => {
                         <TabPanel key={tab.name}>
                             <GridLayout
                                 cols={tab.columns}
-                                rowHeight={132}
+                                rowHeight={137}
                                 maxRows={6}
-                                width={1850}
+                                width={1920}
                                 layout={schema.tabs[tabIndex].widgets.map(
                                     (widget, widgetIndex) => ({
                                         i: widgetIndex.toString(),
