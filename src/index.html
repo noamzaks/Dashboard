@@ -24,6 +24,13 @@
             }
         }, true)
     }
+
+    setInterval(() => {
+        Array.from(document.getElementsByTagName("img")).forEach(img => {
+            const index = img.src.indexOf("?")
+            img.src = img.src.substring(0, index === -1 ? undefined : index) + "?" + Date.now()
+        })
+    }, 1000)
 </script>
 
 </html>

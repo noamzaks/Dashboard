@@ -137,7 +137,7 @@ app.on("ready", () => {
         setSchema(mainWindow, current)
     }
 
-    pynetworktables2jsProcess = spawn("py", ["-m", "pynetworktables2js", "--team 1574"])
+    pynetworktables2jsProcess = spawn("pynetworktables2js", ["--team", "1574"])
     pynetworktables2jsProcess.on("close", (e) => {
         console.log(e)
     })
@@ -147,7 +147,6 @@ app.on("ready", () => {
     pynetworktables2jsProcess.on("data", (msg) => {
         console.log(msg)
     })
-
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common
