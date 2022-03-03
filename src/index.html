@@ -12,16 +12,18 @@
 <script>
     const ntLoaded = () => {
         NetworkTables.addGlobalListener((key, value, isNew) => {
-            if (key === "/SmartDashboard/Field/Orientation") {
-                const orientation =
-                    value === "Right" ? 90 : value === "Left" ? -90 : 0
-                Array.from(
-                    document.getElementsByTagName("frc-field")
-                ).forEach((element) => {
-                    // TODO: fix this scale magic number
-                    element.parentElement.style.transform = `rotate(${orientation}deg) scale(1.75)`
-                })
-            }
+            setTimeout(() => {
+                if (key === "/SmartDashboard/Field/Orientation") {
+                    const orientation =
+                        value === "Right" ? 90 : value === "Left" ? -90 : 0
+                    Array.from(
+                        document.getElementsByTagName("frc-field")
+                    ).forEach((element) => {
+                        // TODO: fix this scale magic number
+                        element.parentElement.style.transform = `rotate(${orientation}deg) scale(1.75)`
+                    })
+                }
+            }, 5000)
         }, true)
     }
 
