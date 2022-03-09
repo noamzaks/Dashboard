@@ -91,11 +91,13 @@ const Widget: React.FC<{ widget: DashboardWidget }> = ({ widget }) => {
                         height: "100%",
                     }}
                     dangerouslySetInnerHTML={{
-                        __html: `<${widget.type} ${widget.attributes} ${widget.sourceKey && widget.sourceKey.length > 0
-                            ? "source-key='" + widget.sourceKey + "'"
-                            : ""
-                            } style="width: calc(100% - 10px); height: calc(100% - 10px);">${widget.innerHTML ?? ""
-                            }</${widget.type}>`,
+                        __html: `<${widget.type} ${widget.attributes} ${
+                            widget.sourceKey && widget.sourceKey.length > 0
+                                ? "source-key='" + widget.sourceKey + "'"
+                                : ""
+                        } style="width: calc(100% - 10px); height: calc(100% - 10px);">${
+                            widget.innerHTML ?? ""
+                        }</${widget.type}>`,
                     }}
                 />
             </div>
@@ -136,11 +138,9 @@ const App = () => {
                     const widgets = tab.widgets
 
                     for (const layout of layouts) {
-                        const index = widgets.findIndex(
-                            (widget) => widget.name === layout.i
-                        )
+                        const index = parseInt(layout.i, 10)
 
-                        if (index !== -1) {
+                        if (index !== NaN) {
                             widgets[index] = {
                                 ...widgets[index],
                                 ...layout,
