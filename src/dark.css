@@ -5,7 +5,7 @@
 }
 
 body {
-    background-color: #333;
+    background-color: #111;
     color: white;
 }
 
@@ -22,10 +22,14 @@ select {
     color: white;
 }
 
+.react-tabs__tab-list {
+    text-align: center;
+}
+
 .widget-title {
     border-top-right-radius: 10px;
     border-top-left-radius: 10px;
-    background-color: #222;
+    background-color: #7e0c2b;
 }
 
 .react-resizable-handle::after {
