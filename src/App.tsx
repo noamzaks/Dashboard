@@ -91,13 +91,11 @@ const Widget: React.FC<{ widget: DashboardWidget }> = ({ widget }) => {
                         height: "100%",
                     }}
                     dangerouslySetInnerHTML={{
-                        __html: `<${widget.type} ${widget.attributes} ${
-                            widget.sourceKey && widget.sourceKey.length > 0
-                                ? "source-key='" + widget.sourceKey + "'"
-                                : ""
-                        } style="width: calc(100% - 10px); height: calc(100% - 10px);">${
-                            widget.innerHTML ?? ""
-                        }</${widget.type}>`,
+                        __html: `<${widget.type} ${widget.attributes} ${widget.sourceKey && widget.sourceKey.length > 0
+                            ? "source-key='" + widget.sourceKey + "'"
+                            : ""
+                            } style="width: calc(100% - 10px); height: calc(100% - 10px);">${widget.innerHTML ?? ""
+                            }</${widget.type}>`,
                     }}
                 />
             </div>
@@ -367,6 +365,25 @@ const App = () => {
                                         ].widgets[
                                             currentWidget.widgetIndex
                                         ].attributes = e.target.value
+                                        return { ...schema }
+                                    })
+                                }}
+                            />
+                            <p>Inner HTML</p>
+                            <input
+                                type="text"
+                                value={
+                                    schema.tabs[currentWidget.tabIndex].widgets[
+                                        currentWidget.widgetIndex
+                                    ].innerHTML
+                                }
+                                onChange={(e) => {
+                                    setSchema((schema) => {
+                                        schema.tabs[
+                                            currentWidget.tabIndex
+                                        ].widgets[
+                                            currentWidget.widgetIndex
+                                        ].innerHTML = e.target.value
                                         return { ...schema }
                                     })
                                 }}
