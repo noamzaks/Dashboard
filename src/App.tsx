@@ -6,6 +6,7 @@ import "react-tabs/style/react-tabs.css"
 import "react-grid-layout/css/styles.css"
 import "react-resizable/css/styles.css"
 import "./dark.css"
+import Ripples from "react-ripples"
 
 interface DashboardWidget {
     name: string
@@ -35,7 +36,12 @@ interface WidgetSelector {
     widgetIndex: number
 }
 
-const Widget: React.FC<{ widget: DashboardWidget }> = ({ widget }) => {
+const Widget: React.FC<{
+    widget: DashboardWidget
+    onClick?: () => void
+    remove?: () => void
+    lock: boolean
+}> = ({ widget, onClick, remove, lock }) => {
     return (
         <div
             style={{
@@ -50,18 +56,33 @@ const Widget: React.FC<{ widget: DashboardWidget }> = ({ widget }) => {
                 flexDirection: "column",
             }}
         >
-            <div className="widget-title">
+            <Ripples className="widget-title" during={800} onClick={onClick}>
                 <h3
                     style={{
                         textAlign: "center",
                         userSelect: "none",
                         margin: 5,
                         outline: "none",
+                        width: "100%",
                     }}
                 >
                     {widget.name}
                 </h3>
-            </div>
+                {!lock && (
+                    <button
+                        style={{
+                            backgroundColor: "inherit",
+                            color: "inherit",
+                            cursor: "pointer",
+                            border: "none",
+                            marginRight: "5px",
+                        }}
+                        onClick={remove}
+                    >
+                        X
+                    </button>
+                )}
+            </Ripples>
             <hr
                 style={{
                     width: "calc(100% - 2px)",
@@ -77,6 +98,7 @@ const Widget: React.FC<{ widget: DashboardWidget }> = ({ widget }) => {
                 }}
             >
                 <div
+                    onClick={onClick}
                     style={{
                         display: "flex",
                         justifyContent: "center",
@@ -160,7 +182,9 @@ const App = () => {
             style={{
                 display: "flex",
                 flexDirection: "row",
-                height: "100vh",
+                height: "calc(100vh - 20px)",
+                paddingTop: "10px",
+                paddingBottom: "10px",
             }}
         >
             {!lock && (
@@ -207,6 +231,7 @@ const App = () => {
                                 sourceKey: "",
                                 attributes: "",
                             }}
+                            lock={true}
                         />
                     </div>
                     {currentWidget && (
@@ -426,7 +451,7 @@ const App = () => {
                                             i: schema.tabs[tabIndex].widgets
                                                 .length,
                                             name: "New",
-                                            type: "frc-text-field",
+                                            type: "frc-label",
                                             sourceKey: "",
                                             attributes: "",
                                         },
@@ -459,7 +484,48 @@ const App = () => {
                                                     height: "100%",
                                                 }}
                                             >
-                                                <Widget widget={widget} />
+                                                <Widget
+                                                    lock={lock}
+                                                    widget={widget}
+                                                    onClick={() =>
+                                                        setCurrentWidget({
+                                                            tabIndex,
+                                                            widgetIndex,
+                                                        })
+                                                    }
+                                                    remove={() => {
+                                                        setSchema((schema) => {
+                                                            return {
+                                                                tabs: schema.tabs.map(
+                                                                    (
+                                                                        tab,
+                                                                        index
+                                                                    ) => {
+                                                                        if (
+                                                                            index !==
+                                                                            tabIndex
+                                                                        ) {
+                                                                            return tab
+                                                                        }
+
+                                                                        return {
+                                                                            ...tab,
+                                                                            widgets:
+                                                                                tab.widgets.filter(
+                                                                                    (
+                                                                                        __,
+                                                                                        index
+                                                                                    ) =>
+                                                                                        index !==
+                                                                                        widgetIndex
+                                                                                ),
+                                                                        }
+                                                                    }
+                                                                ),
+                                                            }
+                                                        })
+                                                    }}
+                                                />
                                             </div>
                                         </div>
                                     )
