@@ -35,13 +35,16 @@ const createWindow = () => {
     // Create the browser window.
     const mainWindow = new BrowserWindow({
         width: 1920,
-        height: 880,
+        height: 890,
+        webPreferences: { webSecurity: false },
     })
 
     mainWindow.setResizable(false)
     try {
-        mainWindow.setIcon("C:\\Users\\progr\\Developer\\2022-robot\\src\\main\\resources\\images\\kumkum.png")
-    } catch (ignored) { }
+        mainWindow.setIcon(
+            "C:\\Users\\progr\\Developer\\2022-robot\\src\\main\\resources\\images\\kumkum.png"
+        )
+    } catch (ignored) {}
     mainWindow.setPosition(0, 0, true)
 
     // and load the index.html of the app.

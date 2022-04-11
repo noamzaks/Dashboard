@@ -7,6 +7,7 @@ import "react-grid-layout/css/styles.css"
 import "react-resizable/css/styles.css"
 import "./dark.css"
 import Ripples from "react-ripples"
+import Logo from "./Logo"
 
 interface DashboardWidget {
     name: string
@@ -35,6 +36,8 @@ interface WidgetSelector {
     tabIndex: number
     widgetIndex: number
 }
+
+const star = ["Zaks", "Imri", "Yair"][Math.floor(Math.random() * 3)]
 
 const Widget: React.FC<{
     widget: DashboardWidget
@@ -113,11 +116,13 @@ const Widget: React.FC<{
                         height: "100%",
                     }}
                     dangerouslySetInnerHTML={{
-                        __html: `<${widget.type} ${widget.attributes} ${widget.sourceKey && widget.sourceKey.length > 0
-                            ? "source-key='" + widget.sourceKey + "'"
-                            : ""
-                            } style="width: calc(100% - 10px); height: calc(100% - 10px);">${widget.innerHTML ?? ""
-                            }</${widget.type}>`,
+                        __html: `<${widget.type} ${widget.attributes} ${
+                            widget.sourceKey && widget.sourceKey.length > 0
+                                ? "source-key='" + widget.sourceKey + "'"
+                                : ""
+                        } style="width: calc(100% - 10px); height: calc(100% - 10px);">${
+                            widget.innerHTML ?? ""
+                        }</${widget.type}>`,
                     }}
                 />
             </div>
@@ -131,6 +136,7 @@ const App = () => {
     })
     const [lock, setLock] = useState(true)
     const [currentWidget, setCurrentWidget] = useState<WidgetSelector>()
+    const [connected, setConnected] = useState(false)
 
     useEffect(() => {
         // @ts-ignore
@@ -141,6 +147,11 @@ const App = () => {
         window.tabLock = () => setLock(true)
         // @ts-ignore
         window.tabUnlock = () => setLock(false)
+
+        // @ts-ignore
+        window.NetworkTables.addRobotConnectionListener((connected) => {
+            setConnected(connected)
+        }, true)
     })
 
     const setLayouts = (
@@ -418,6 +429,36 @@ const App = () => {
                 </div>
             )}
             <div style={{ flexGrow: 1 }}>
+                <div
+                    style={{
+                        paddingRight: 20,
+                        paddingLeft: 20,
+                        paddingBottom: 10,
+                        height: 50,
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "center",
+                    }}
+                >
+                    <Logo />
+                    <p
+                        style={{
+                            paddingLeft: 20,
+                            fontWeight: "bold",
+                        }}
+                    >
+                        MisCar Dashboard
+                    </p>
+                    <div style={{ flexGrow: 1 }} />
+                    <p>🌟 {star}</p>
+                    <div style={{ flexGrow: 1 }} />
+                    {connected ? (
+                        <p style={{ color: "green" }}>Connected</p>
+                    ) : (
+                        <p style={{ color: "red" }}>Disconnected</p>
+                    )}
+                </div>
+
                 <Tabs>
                     <TabList>
                         {schema.tabs.map((tab) => (
