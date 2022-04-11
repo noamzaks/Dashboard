@@ -137,6 +137,7 @@ const App = () => {
     const [lock, setLock] = useState(true)
     const [currentWidget, setCurrentWidget] = useState<WidgetSelector>()
     const [connected, setConnected] = useState(false)
+    const [rotation, setRotation] = useState(0)
 
     useEffect(() => {
         // @ts-ignore
@@ -438,9 +439,18 @@ const App = () => {
                         display: "flex",
                         flexDirection: "row",
                         justifyContent: "center",
+                        userSelect: "none",
                     }}
                 >
-                    <Logo />
+                    <div
+                        onClick={() => setRotation((rotation) => rotation + 72)}
+                        style={{
+                            transform: `rotate(${rotation}deg)`,
+                            transition: "250ms ease-in-out",
+                        }}
+                    >
+                        <Logo />
+                    </div>
                     <p
                         style={{
                             paddingLeft: 20,
