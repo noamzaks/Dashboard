@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react"
 import ReactDOM from "react-dom"
 import GridLayout, { Layout } from "react-grid-layout"
-import { Tab, Tabs, TabList, TabPanel } from "react-tabs"
-import "react-tabs/style/react-tabs.css"
 import "react-grid-layout/css/styles.css"
-import "react-resizable/css/styles.css"
 import "./dark.css"
 import Ripples from "react-ripples"
 import Logo from "./Logo"
+import { Tabs, Tab } from "baseui/tabs-motion"
+import { Provider as StyletronProvider } from "styletron-react"
+import { Client as Styletron } from "styletron-engine-atomic"
+import { DarkTheme, BaseProvider } from "baseui"
+import { Input } from "baseui/input"
+import { Combobox } from "baseui/combobox"
 
 interface DashboardWidget {
     name: string
@@ -48,13 +51,14 @@ const Widget: React.FC<{
     return (
         <div
             style={{
-                height: "calc(100% - 20px)",
-                width: "calc(100% - 20px)",
+                height: "calc(100% - 10px)",
+                width: "calc(100% - 10px)",
                 margin: 5,
                 borderColor: "var(--widget-border)",
-                borderWidth: 2,
+                borderWidth: 1,
                 borderRadius: 10,
                 borderStyle: "solid",
+                backgroundColor: "#222",
                 display: "flex",
                 flexDirection: "column",
             }}
@@ -108,17 +112,20 @@ const Widget: React.FC<{
                         alignItems: "center",
                         textAlign: "center",
                         margin: "auto",
-                        backgroundColor: "white",
-                        color: "black",
+                        color: "white",
                         borderBottomRightRadius: 5,
                         borderBottomLeftRadius: 5,
-                        width: "100%",
-                        height: "100%",
+                        width: "95%",
+                        height: "95%",
                     }}
                     dangerouslySetInnerHTML={{
                         __html: `<${widget.type} ${widget.attributes} ${
                             widget.sourceKey && widget.sourceKey.length > 0
-                                ? "source-key='" + widget.sourceKey + "'"
+                                ? widget.sourceKey.startsWith("/")
+                                    ? "source-key='" + widget.sourceKey + "'"
+                                    : "source-key='/MisCar/" +
+                                      widget.sourceKey +
+                                      "'"
                                 : ""
                         } style="width: calc(100% - 10px); height: calc(100% - 10px);">${
                             widget.innerHTML ?? ""
@@ -138,6 +145,7 @@ const App = () => {
     const [currentWidget, setCurrentWidget] = useState<WidgetSelector>()
     const [connected, setConnected] = useState(false)
     const [rotation, setRotation] = useState(0)
+    const [activeKey, setActiveKey] = React.useState("0")
 
     useEffect(() => {
         // @ts-ignore
@@ -149,10 +157,12 @@ const App = () => {
         // @ts-ignore
         window.tabUnlock = () => setLock(false)
 
-        // @ts-ignore
-        window.NetworkTables.addRobotConnectionListener((connected) => {
-            setConnected(connected)
-        }, true)
+        var ntLoaded = () => {
+            // @ts-ignore
+            window.NetworkTables.addRobotConnectionListener((connected) => {
+                setConnected(connected)
+            }, true)
+        }
     })
 
     const setLayouts = (
@@ -194,22 +204,49 @@ const App = () => {
             style={{
                 display: "flex",
                 flexDirection: "row",
-                height: "calc(100vh - 20px)",
-                paddingTop: "10px",
-                paddingBottom: "10px",
+                height: "100vh",
             }}
         >
+            {lock && (
+                <div
+                    style={{
+                        width: 150,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        userSelect: "none",
+                    }}
+                >
+                    <div
+                        onClick={() => setRotation((rotation) => rotation + 72)}
+                        style={{
+                            paddingTop: 15,
+                            transform: `rotate(${rotation}deg)`,
+                            transition: "250ms ease-in-out",
+                        }}
+                    >
+                        <Logo />
+                    </div>
+                    <h2 className="title">Dashboard</h2>
+                    <div style={{ flexGrow: 1 }} />
+                    <p>🌟 {star}</p>
+                    <div style={{ flexGrow: 1 }} />
+                    {connected ? (
+                        <p style={{ color: "green" }}>Connected</p>
+                    ) : (
+                        <p style={{ color: "red" }}>Disconnected</p>
+                    )}
+                </div>
+            )}
+
             {!lock && (
                 <div
                     style={{
                         display: "flex",
                         flexDirection: "column",
-                        width: 240,
-                        paddingRight: 5,
-                        paddingLeft: 5,
-                        marginRight: 10,
-                        backgroundColor: "lightgrey",
-                        color: "black",
+                        width: 130,
+                        paddingRight: 10,
+                        paddingLeft: 10,
                         textAlign: "center",
                     }}
                 >
@@ -218,16 +255,10 @@ const App = () => {
                         className="droppable-element"
                         draggable={true}
                         unselectable="on"
-                        // this is a hack for firefox
-                        // Firefox requires some kind of initialization
-                        // which we can do by adding this attribute
-                        // @see https://bugzilla.mozilla.org/show_bug.cgi?id=568313
-                        onDragStart={(e) =>
-                            e.dataTransfer.setData("text/plain", "")
-                        }
                         style={{
                             color: "white",
                             width: 116,
+                            height: 116,
                             marginRight: "auto",
                             marginLeft: "auto",
                         }}
@@ -235,7 +266,7 @@ const App = () => {
                         <Widget
                             widget={{
                                 name: "New",
-                                type: "frc-text-field",
+                                type: "frc-label",
                                 x: 0,
                                 y: 0,
                                 w: 1,
@@ -249,8 +280,9 @@ const App = () => {
                     {currentWidget && (
                         <>
                             <p>Title</p>
-                            <input
+                            <Input
                                 type="text"
+                                size="compact"
                                 value={
                                     schema.tabs[currentWidget.tabIndex].widgets[
                                         currentWidget.widgetIndex
@@ -262,152 +294,87 @@ const App = () => {
                                             currentWidget.tabIndex
                                         ].widgets[
                                             currentWidget.widgetIndex
-                                        ].name = e.target.value
+                                        ].name = (
+                                            e.target as HTMLInputElement
+                                        ).value
                                         return { ...schema }
                                     })
                                 }}
                             />
                             <p>Type</p>
-                            <select
+                            <Combobox
                                 value={
                                     schema.tabs[currentWidget.tabIndex].widgets[
                                         currentWidget.widgetIndex
                                     ].type
                                 }
-                                onChange={(e) => {
+                                onChange={(value) => {
                                     setSchema((schema) => {
                                         schema.tabs[
                                             currentWidget.tabIndex
                                         ].widgets[
                                             currentWidget.widgetIndex
-                                        ].type = e.target.value
+                                        ].type = value
                                         return { ...schema }
                                     })
                                 }}
-                            >
-                                <option value="frc-gauge">Gauge</option>
-                                <option value="frc-line-chart">
-                                    Line Chart
-                                </option>
-                                <option value="frc-3-axis-accelerometer">
-                                    3-Axis Accelerometer
-                                </option>
-                                <option value="frc-accelerometer">
-                                    Accelerometer
-                                </option>
-                                <option value="frc-basic-fms-info">
-                                    Basic FMS Info
-                                </option>
-                                <option value="frc-basic-subsystem">
-                                    Basic Subsystem
-                                </option>
-                                <option value="frc-differential-drivebase">
-                                    Differential Drivebase
-                                </option>
-                                <option value="frc-encoder">Encoder</option>
-                                <option value="frc-gyro">Gyro</option>
-                                <option value="frc-mecanum-drivebase">
-                                    Mecanum Drivebase
-                                </option>
-                                <option value="frc-model-viewer">
-                                    Model Viewer
-                                </option>
-                                <option value="frc-networktable-tree">
-                                    NetworkTable Tree
-                                </option>
-                                <option value="frc-power-distribution-panel">
-                                    Power Distribution Panel
-                                </option>
-                                <option value="frc-relay">Relay</option>
-                                <option value="frc-voltage-view">
-                                    Voltage View
-                                </option>
-                                <option value="frc-boolean-box">
-                                    Boolean Box
-                                </option>
-                                <option value="frc-label">Label</option>
-                                <option value="frc-number-bar">
-                                    Number Bar
-                                </option>
-                                <option value="frc-checkbox">Checkbox</option>
-                                <option value="frc-checkbox-group">
-                                    Checkbox Group
-                                </option>
-                                <option value="frc-combo-box">Combo Box</option>
-                                <option value="frc-number-field">
-                                    Number Field
-                                </option>
-                                <option value="frc-number-slider">
-                                    Number Slider
-                                </option>
-                                <option value="frc-radio-button">
-                                    Radio Button
-                                </option>
-                                <option value="frc-radio-group">
-                                    Radio Group
-                                </option>
-                                <option value="frc-text-field">
-                                    Text Field
-                                </option>
-                                <option value="frc-text-area">Text Area</option>
-                                <option value="frc-text-view">Text View</option>
-                                <option value="frc-toggle-button">
-                                    Toggle Button
-                                </option>
-                                <option value="frc-toggle-switch">
-                                    Toggle Switch
-                                </option>
-                                <option value="frc-camera">Camera</option>
-                                <option value="frc-field">Field</option>
-                                <option value="frc-networktables-connection">
-                                    NetworkTables Connection
-                                </option>
-                                <option value="frc-code-editor">
-                                    Code Editor
-                                </option>
-                            </select>
+                                options={[
+                                    "frc-gauge",
+                                    "frc-boolean-box",
+                                    "frc-label",
+                                    "frc-combo-box",
+                                    "frc-number-field",
+                                    "frc-toggle-button",
+                                    "frc-toggle-switch",
+                                ]}
+                                mapOptionToString={(option) => option}
+                            />
                             <p>Source Key</p>
-                            <input
+                            <Input
                                 type="text"
+                                size="compact"
                                 value={
                                     schema.tabs[currentWidget.tabIndex].widgets[
                                         currentWidget.widgetIndex
                                     ].sourceKey
                                 }
-                                style={{ width: "calc(100% - 15px)" }}
                                 onChange={(e) => {
                                     setSchema((schema) => {
                                         schema.tabs[
                                             currentWidget.tabIndex
                                         ].widgets[
                                             currentWidget.widgetIndex
-                                        ].sourceKey = e.target.value
+                                        ].sourceKey = (
+                                            e.target as HTMLInputElement
+                                        ).value
                                         return { ...schema }
                                     })
                                 }}
                             />
                             <p>Attributes</p>
-                            <input
+                            <Input
                                 type="text"
+                                size="compact"
                                 value={
                                     schema.tabs[currentWidget.tabIndex].widgets[
                                         currentWidget.widgetIndex
                                     ].attributes
                                 }
-                                style={{ width: "calc(100% - 15px)" }}
                                 onChange={(e) => {
                                     setSchema((schema) => {
                                         schema.tabs[
                                             currentWidget.tabIndex
                                         ].widgets[
                                             currentWidget.widgetIndex
-                                        ].attributes = e.target.value
+                                        ].attributes = (
+                                            e.target as HTMLInputElement
+                                        ).value
                                         return { ...schema }
                                     })
                                 }}
                             />
                             <p>Inner HTML</p>
-                            <input
+                            <Input
                                 type="text"
                                 value={
                                     schema.tabs[currentWidget.tabIndex].widgets[
@@ -420,7 +387,9 @@ const App = () => {
                                             currentWidget.tabIndex
                                         ].widgets[
                                             currentWidget.widgetIndex
-                                        ].innerHTML = e.target.value
+                                        ].innerHTML = (
+                                            e.target as HTMLInputElement
+                                        ).value
                                         return { ...schema }
                                     })
                                 }}
@@ -429,60 +398,21 @@ const App = () => {
                     )}
                 </div>
             )}
+
             <div style={{ flexGrow: 1 }}>
-                <div
-                    style={{
-                        paddingRight: 20,
-                        paddingLeft: 20,
-                        paddingBottom: 10,
-                        height: 50,
-                        display: "flex",
-                        flexDirection: "row",
-                        justifyContent: "center",
-                        userSelect: "none",
+                <Tabs
+                    onChange={({ activeKey }) => {
+                        setActiveKey(activeKey as string)
                     }}
+                    activeKey={activeKey}
                 >
-                    <div
-                        onClick={() => setRotation((rotation) => rotation + 72)}
-                        style={{
-                            transform: `rotate(${rotation}deg)`,
-                            transition: "250ms ease-in-out",
-                        }}
-                    >
-                        <Logo />
-                    </div>
-                    <p
-                        style={{
-                            paddingLeft: 20,
-                            fontWeight: "bold",
-                        }}
-                    >
-                        MisCar Dashboard
-                    </p>
-                    <div style={{ flexGrow: 1 }} />
-                    <p>🌟 {star}</p>
-                    <div style={{ flexGrow: 1 }} />
-                    {connected ? (
-                        <p style={{ color: "green" }}>Connected</p>
-                    ) : (
-                        <p style={{ color: "red" }}>Disconnected</p>
-                    )}
-                </div>
-
-                <Tabs>
-                    <TabList>
-                        {schema.tabs.map((tab) => (
-                            <Tab key={tab.name}>{tab.name}</Tab>
-                        ))}
-                    </TabList>
-
                     {schema.tabs.map((tab, tabIndex) => (
-                        <TabPanel key={tab.name}>
+                        <Tab key={tab.name} title={tab.name}>
                             <GridLayout
                                 cols={tab.columns}
-                                rowHeight={137}
+                                rowHeight={109}
                                 maxRows={6}
-                                width={1920}
+                                width={1560}
                                 layout={schema.tabs[tabIndex].widgets.map(
                                     (widget, widgetIndex) => ({
                                         i: widgetIndex.toString(),
@@ -582,7 +512,7 @@ const App = () => {
                                     )
                                 })}
                             </GridLayout>
-                        </TabPanel>
+                        </Tab>
                     ))}
                 </Tabs>
             </div>
@@ -590,9 +520,15 @@ const App = () => {
     )
 }
 
+const engine = new Styletron()
+
 ReactDOM.render(
     <React.StrictMode>
-        <App />
+        <StyletronProvider value={engine}>
+            <BaseProvider theme={DarkTheme}>
+                <App />
+            </BaseProvider>
+        </StyletronProvider>
     </React.StrictMode>,
     document.getElementById("root")
 )

@@ -36,3 +36,19 @@ select {
     border-color: #ffffffff !important;
     border-bottom-right-radius: 3px;
 }
+
+.title {
+    transition-timing-function: ease-in-out;
+    animation-timing-function: linear;
+    animation: color-change 3s infinite;
+}
+
+@keyframes color-change {
+    0% { color: #7e0c2b; }
+    50% { color: white; }
+    100% { color: #7e0c2b; }
+}
+
+frc-gauge::shadow .gauge-container > .gauge > .value-text {
+    fill: white;
+}
