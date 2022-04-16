@@ -61,6 +61,7 @@ const Widget: React.FC<{
                 backgroundColor: "#222",
                 display: "flex",
                 flexDirection: "column",
+                boxShadow: "0 0 5px",
             }}
         >
             <Ripples className="widget-title" during={800} onClick={onClick}>

@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Assistant");
 
 :root {
-    --widget-border: white;
+    --widget-border: transparent;
 }
 
 body {
@@ -30,6 +30,7 @@ select {
     border-top-right-radius: 10px;
     border-top-left-radius: 10px;
     background-color: #7e0c2b;
+    flex: none;
 }
 
 .react-resizable-handle::after {
@@ -45,10 +46,14 @@ select {
 
 @keyframes color-change {
     0% { color: #7e0c2b; }
-    50% { color: white; }
+    50% { color: white; transform: scale(1.1); }
     100% { color: #7e0c2b; }
 }
 
 frc-gauge::shadow .gauge-container > .gauge > .value-text {
     fill: white;
+}
+
+frc-toggle-switch[toggled]::part(switch) {
+    background: #7e0c2b;
 }
