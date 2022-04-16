@@ -120,17 +120,15 @@ const Widget: React.FC<{
                         height: "95%",
                     }}
                     dangerouslySetInnerHTML={{
-                        __html: `<${widget.type} ${widget.attributes} ${
-                            widget.sourceKey && widget.sourceKey.length > 0
-                                ? widget.sourceKey.startsWith("/")
-                                    ? "source-key='" + widget.sourceKey + "'"
-                                    : "source-key='/MisCar/" +
-                                      widget.sourceKey +
-                                      "'"
-                                : ""
-                        } style="width: calc(100% - 10px); height: calc(100% - 10px);">${
-                            widget.innerHTML ?? ""
-                        }</${widget.type}>`,
+                        __html: `<${widget.type} ${widget.attributes} ${widget.sourceKey && widget.sourceKey.length > 0
+                            ? widget.sourceKey.startsWith("/")
+                                ? "source-key='" + widget.sourceKey + "'"
+                                : "source-key='/MisCar/" +
+                                widget.sourceKey +
+                                "'"
+                            : ""
+                            } style="width: calc(100% - 10px); height: calc(100% - 10px);">${widget.innerHTML ?? ""
+                            }</${widget.type}>`,
                     }}
                 />
             </div>
@@ -216,6 +214,7 @@ const App = () => {
                         flexDirection: "column",
                         alignItems: "center",
                         userSelect: "none",
+                        textAlign: "center"
                     }}
                 >
                     <div
@@ -411,9 +410,9 @@ const App = () => {
                         <Tab key={tab.name} title={tab.name}>
                             <GridLayout
                                 cols={tab.columns}
-                                rowHeight={109}
+                                rowHeight={124}
                                 maxRows={6}
-                                width={1560}
+                                width={1750}
                                 layout={schema.tabs[tabIndex].widgets.map(
                                     (widget, widgetIndex) => ({
                                         i: widgetIndex.toString(),
