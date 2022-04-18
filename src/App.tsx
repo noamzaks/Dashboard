@@ -12,6 +12,7 @@ import { DarkTheme, BaseProvider } from "baseui"
 import { Input } from "baseui/input"
 import { Combobox } from "baseui/combobox"
 import Snowfall from "react-snowfall"
+import Steampunk from "./Steampunk"
 
 interface DashboardWidget {
     name: string
@@ -146,6 +147,13 @@ const App = () => {
     const [connected, setConnected] = useState(false)
     const [rotation, setRotation] = useState(0)
     const [activeKey, setActiveKey] = React.useState("0")
+    const [clickCount, setClickCount] = useState(0)
+
+    useEffect(() => {
+        if (schema.tabs && schema.tabs.length > 0) {
+            setActiveKey(schema.tabs[0].name)
+        }
+    }, [schema])
 
     useEffect(() => {
         // @ts-ignore
@@ -219,16 +227,19 @@ const App = () => {
                     }}
                 >
                     <div
-                        onClick={() => setRotation((rotation) => rotation + 36)}
+                        onClick={() => {
+                            setRotation((rotation) => rotation + 36)
+                            setClickCount(count => count + 1)
+                        }}
                         style={{
                             paddingTop: 15,
                             transform: `rotate(${rotation}deg)`,
                             transition: "125ms ease-in-out",
                         }}
                     >
-                        <Logo />
+                        {(clickCount % 40) >= 20 ? <Steampunk /> : <Logo />}
                     </div>
-			  <div style={{ transition: "300ms ease-in-out", opacity: (rotation % 360) === 180 ? 1 : 0 }}><Snowfall /></div>
+                    <div style={{ transition: "300ms ease-in-out", opacity: (rotation % 360) === 180 ? 1 : 0 }}><Snowfall /></div>
                     <h2 className="title">Dashboard</h2>
                     <div style={{ flexGrow: 1 }} />
                     <p>🌟 {star}</p>
