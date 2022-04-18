@@ -11,6 +11,7 @@ import { Client as Styletron } from "styletron-engine-atomic"
 import { DarkTheme, BaseProvider } from "baseui"
 import { Input } from "baseui/input"
 import { Combobox } from "baseui/combobox"
+import Snowfall from "react-snowfall"
 
 interface DashboardWidget {
     name: string
@@ -218,15 +219,16 @@ const App = () => {
                     }}
                 >
                     <div
-                        onClick={() => setRotation((rotation) => rotation + 72)}
+                        onClick={() => setRotation((rotation) => rotation + 36)}
                         style={{
                             paddingTop: 15,
                             transform: `rotate(${rotation}deg)`,
-                            transition: "250ms ease-in-out",
+                            transition: "125ms ease-in-out",
                         }}
                     >
                         <Logo />
                     </div>
+			  <div style={{ transition: "300ms ease-in-out", opacity: (rotation % 360) === 180 ? 1 : 0 }}><Snowfall /></div>
                     <h2 className="title">Dashboard</h2>
                     <div style={{ flexGrow: 1 }} />
                     <p>🌟 {star}</p>
