@@ -150,12 +150,6 @@ const App = () => {
     const [clickCount, setClickCount] = useState(0)
 
     useEffect(() => {
-        if (schema.tabs && schema.tabs.length > 0) {
-            setActiveKey(schema.tabs[0].name)
-        }
-    }, [schema])
-
-    useEffect(() => {
         // @ts-ignore
         window.setSchema = (schema: string) => setSchema(JSON.parse(schema))
         // @ts-ignore
@@ -420,7 +414,7 @@ const App = () => {
                     activeKey={activeKey}
                 >
                     {schema.tabs.map((tab, tabIndex) => (
-                        <Tab key={tab.name} title={tab.name}>
+                        <Tab key={"" + tabIndex} title={tab.name}>
                             <GridLayout
                                 cols={tab.columns}
                                 rowHeight={124}
