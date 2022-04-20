@@ -13,6 +13,7 @@ import { Input } from "baseui/input"
 import { Combobox } from "baseui/combobox"
 import Snowfall from "react-snowfall"
 import Steampunk from "./Steampunk"
+import { Button, SHAPE } from 'baseui/button'
 
 interface DashboardWidget {
     name: string
@@ -42,7 +43,6 @@ interface WidgetSelector {
     widgetIndex: number
 }
 
-const star = ["Zaks", "Imri", "Yair"][Math.floor(Math.random() * 3)]
 
 const Widget: React.FC<{
     widget: DashboardWidget
@@ -148,6 +148,7 @@ const App = () => {
     const [rotation, setRotation] = useState(0)
     const [activeKey, setActiveKey] = React.useState("0")
     const [clickCount, setClickCount] = useState(0)
+    const [star, setStar] = useState(["Zaks", "Imri", "Yair"][Math.floor(Math.random() * 3)])
 
     useEffect(() => {
         // @ts-ignore
@@ -237,6 +238,10 @@ const App = () => {
                     <h2 className="title">Dashboard</h2>
                     <div style={{ flexGrow: 1 }} />
                     <p>🌟 {star}</p>
+                    <Button shape={SHAPE.circle} onClick={() => {
+                        setStar("")
+                        setTimeout(() => setStar(["Zaks", "Imri", "Yair"][Math.floor(Math.random() * 3)]), 1000)
+                    }}>🎲</Button>
                     <div style={{ flexGrow: 1 }} />
                     {connected ? (
                         <p style={{ color: "green" }}>Connected</p>
